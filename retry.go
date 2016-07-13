@@ -1,13 +1,15 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
-	"github.com/cenkalti/backoff"
-	"log"
 	"os"
 	"os/exec"
+	"syscall"
 	"time"
+
+	"github.com/cenkalti/backoff"
 )
 
 var (
@@ -51,9 +53,17 @@ func main() {
 	err := backoff.Retry(operation, bf)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "operation failed: %s\n", err)
-		os.Exit(1)
+		var exitStatus int
+		if e, ok := err.(*exec.ExitError); ok {
+			if s, ok := e.Sys().(syscall.WaitStatus); ok {
+				exitStatus = s.ExitStatus()
+			} else {
+				panic(errors.New("Unimplemented for system where exec.ExitError.Sys() is not syscall.WaitStatus."))
+			}
+		}
+		fmt.Fprintf(os.Stdout, "\nlast stdout/stderr output:\n%s\n", string(b))
+		os.Exit(exitStatus)
 	}
 
-	fmt.Fprint(os.Stdout, string(b))
 	os.Exit(0)
 }
