@@ -4,7 +4,7 @@ Simple retry tool.
 
 ## Installation
 
-	go get [-u] github.com/suzuken/retry
+	go get [-u] github.com/lvs-mizuno/retry
 
 ## Usage
 
