@@ -34,10 +34,7 @@ func main() {
 	var b []byte
 	operation := func() error {
 		var err error
-		b, err = exec.Command(flag.Arg(0), args[1:]...).Output()
-		if err != nil {
-			log.Printf("err: %s", err)
-		}
+		b, err = exec.Command(flag.Arg(0), args[1:]...).CombinedOutput()
 		return err
 	}
 
